@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      dockerfile: docker/Dockerfile
+      context: ../
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    depends_on: 
+      db:
+        condition: service_healthy
+      # migrate:
+      #   condition: service_completed_successfully
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+  db:
+    image: mysql:8.1.0
+    restart: always
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    ports:
+      - '3366:3306'
+    volumes:
+      - ../migrations/000001_init_schema.up.sql:/docker-entrypoint-initdb.d/000001_init_schema.up.sql
+  # migrate:
+  #   image: migrate/migrate
+  #   depends_on: 
+  #     db:
+  #       condition: service_healthy
+  #   volumes:
+  #     - ./migrations/000001_init_schema.up.sql:/migrations/000001_init_schema.up.sql
+  #     - ./migrations/000001_init_schema.down.sql:/migrations/000001_init_schema.down.sql
+  #   command: ["-path", "/migrations/", "-database",  "mysql://${DATABASE_URL}", "up", "2"]

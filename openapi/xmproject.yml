@@ -1,0 +1,187 @@
+openapi: 3.0.3
+info:
+  description: Company API
+  version: 1.0.0
+  title: Company API
+servers:
+  - url: "http://127.0.0.1:8080"
+
+paths:
+  "/companies":
+    post:
+      security:
+        - bearerAuth: []
+      operationId: CreateCompany
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCompany"
+      responses:
+        "201":
+          description: Account was successfully created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdResponse"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  "/companies/{company_id}":
+    parameters:
+      - in: path
+        name: company_id
+        required: true
+        schema:
+          type: string
+          example: 8ede23f5-f37e-4153-86b1-78ae50340f7c
+        description: Unique identifier of the company
+    get:
+      security:
+        - bearerAuth: []
+      operationId: GetCompany
+      responses:
+        "200":
+          description: List credit cards
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Company"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    put:
+      security:
+        - bearerAuth: []
+      operationId: UpdateCompany
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCompany"
+      responses:
+        "204":
+          description: Company was updated successfully
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      operationId: DeleteCreditCard
+      responses:
+        "204":
+          description: Company was updated deleted
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    CreateCompany:
+      type: object
+      required:
+        - name
+        - employees_count
+        - registered
+        - type
+      properties:
+        name:
+          type: string
+          maxLength: 15
+        description:
+          type: string
+          maxLength: 3000
+        employees_count:
+          type: integer
+          minimum: 1
+        registered:
+          type: boolean
+          default: false
+        type:
+          $ref: "#/components/schemas/CompanyType"
+    UpdateCompany:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 15
+        description:
+          type: string
+          maxLength: 3000
+        employees_count:
+          type: integer
+          minimum: 1
+        registered:
+          type: boolean
+        type:
+          $ref: "#/components/schemas/CompanyType"
+    CompanyType:
+      type: string
+      enum:
+        - corporations
+        - non_profit
+        - cooperative
+        - sole_proprietorship
+    Company:
+      type: object
+      required:
+        - id
+        - name
+        - employees_count
+        - registered
+        - type
+      properties:
+        id:
+          type: string
+          example: 8ede23f5-f37e-4153-86b1-78ae50340f7c
+        name:
+          type: string
+          maxLength: 15
+        description:
+          type: string
+          maxLength: 3000
+        employees_count:
+          type: integer
+          minimum: 1
+        registered:
+          type: boolean
+        type:
+          $ref: "#/components/schemas/CompanyType"
+    IdResponse:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+    Error:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+
+security:
+  - bearerAuth: []
