@@ -10,7 +10,7 @@ docker compose build
 docker compose up
 ```
 
-On MacOS you must allow "File Sharing" on `migration` directory
+On MacOS you must allow docker "File Sharing" on `migration` directory
 
 #### Run localy
 ```sh
