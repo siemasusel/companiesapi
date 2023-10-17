@@ -14,7 +14,7 @@ On MacOS you must allow docker "File Sharing" on `migration` directory
 
 #### Run localy
 ```sh
-DATABASE_URL=root:@tcp(127.0.0.1:3306)/xmproject go run internal/cmd/main.go 
+DATABASE_URL=root:@tcp(127.0.0.1:3306)/xmproject KAFKA_URL=127.0.0.1:9092 go run internal/cmd/main.go 
 ```
 
 ## Database migration
