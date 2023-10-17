@@ -51,7 +51,7 @@ services:
 
 ## Database migration
 Project uses mysql database. Migration files are available in directory `migrations`.
-You an use https://github.com/golang-migrate/migrate to run migration.
+You can use https://github.com/golang-migrate/migrate to run migration.
 
 ## OpenAPI 
 OpenAPI can be found in `openapi/xmproject.yml`
