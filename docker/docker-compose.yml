@@ -9,10 +9,8 @@ services:
       - "8080:8080"
     restart: unless-stopped
     depends_on: 
-      db:
-        condition: service_healthy
-      # migrate:
-      #   condition: service_completed_successfully
+      migrate:
+        condition: service_completed_successfully
     environment:
       DATABASE_URL: ${DATABASE_URL}
   db:
@@ -27,14 +25,11 @@ services:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
     ports:
       - '3366:3306'
+  migrate:
+    image: migrate/migrate
+    depends_on: 
+      db:
+        condition: service_healthy
     volumes:
-      - ../migrations/000001_init_schema.up.sql:/docker-entrypoint-initdb.d/000001_init_schema.up.sql
-  # migrate:
-  #   image: migrate/migrate
-  #   depends_on: 
-  #     db:
-  #       condition: service_healthy
-  #   volumes:
-  #     - ./migrations/000001_init_schema.up.sql:/migrations/000001_init_schema.up.sql
-  #     - ./migrations/000001_init_schema.down.sql:/migrations/000001_init_schema.down.sql
-  #   command: ["-path", "/migrations/", "-database",  "mysql://${DATABASE_URL}", "up", "2"]
+      - ../migrations:/migrations
+    command: ["-path", "/migrations/", "-database",  "mysql://${DATABASE_URL}", "up"]
