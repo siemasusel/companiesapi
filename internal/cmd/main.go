@@ -9,7 +9,9 @@ import (
 	"syscall"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/segmentio/kafka-go"
 	"github.com/siemasusel/companiesapi/internal/command"
+	kafkalib "github.com/siemasusel/companiesapi/internal/event/kafka"
 	"github.com/siemasusel/companiesapi/internal/query"
 	"github.com/siemasusel/companiesapi/internal/repository/mysql"
 	httplib "github.com/siemasusel/companiesapi/internal/server/http"
@@ -23,8 +25,13 @@ func main() {
 	defer stop()
 
 	db := newDatabase()
+	kafkaWriter := newKafkaWriter()
+	defer kafkaWriter.Close()
+
 	companyRepo := mysql.NewCompanyRepository(db)
-	commands := command.NewCommands(companyRepo)
+	eventPublisher := kafkalib.NewEventPublisher(kafkaWriter)
+
+	commands := command.NewCommands(companyRepo, eventPublisher)
 	queries := query.NewQueries(companyRepo)
 
 	handler := httplib.NewRouter(slog.Default().Handler(), commands, queries)
@@ -63,4 +70,18 @@ func newDatabase() *sqlx.DB {
 	}
 
 	return db
+}
+
+func newKafkaWriter() *kafka.Writer {
+	kafkaURL := os.Getenv("KAFKA_URL")
+	if kafkaURL == "" {
+		panic("missing KAFKA_URL environment variable")
+	}
+
+	return &kafka.Writer{
+		Addr:                   kafka.TCP(kafkaURL),
+		Topic:                  "company",
+		Balancer:               &kafka.LeastBytes{},
+		AllowAutoTopicCreation: true,
+	}
 }

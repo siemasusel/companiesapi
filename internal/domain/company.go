@@ -57,7 +57,7 @@ const (
 )
 
 func (c CompanyType) IsValid() bool {
-	return c < companyTypeCount
+	return c > 0 && c < companyTypeCount
 }
 
 func NewCompany(id uuid.UUID, name, description string, employeesCount int, registered bool, companyType CompanyType) (Company, error) {

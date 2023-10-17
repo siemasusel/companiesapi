@@ -11,8 +11,11 @@ services:
     depends_on: 
       migrate:
         condition: service_completed_successfully
+      kafka:
+        condition: service_started
     environment:
       DATABASE_URL: ${DATABASE_URL}
+      KAFKA_URL: ${KAFKA_URL}
   db:
     image: mysql:8.1.0
     restart: always
@@ -33,3 +36,20 @@ services:
     volumes:
       - ../migrations:/migrations
     command: ["-path", "/migrations/", "-database",  "mysql://${DATABASE_URL}", "up"]
+  zookeeper:
+    hostname: zookeeper
+    image: wurstmeister/zookeeper:3.4.6
+    expose:
+    - "2181"
+    ports:
+    - "2181:2181"
+  kafka:
+    image: wurstmeister/kafka
+    env_file:
+    - kafka-variables.env
+    depends_on:
+    - zookeeper
+    ports:
+    - '9092:9092'
+    - '8082:8082'
+    - '8083:8083'

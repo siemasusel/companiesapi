@@ -10,43 +10,11 @@ docker compose build
 docker compose up
 ```
 
+On MacOS you must allow "File Sharing" on `migration` directory
+
 #### Run localy
 ```sh
 DATABASE_URL=root:@tcp(127.0.0.1:3306)/xmproject go run internal/cmd/main.go 
-```
-
-#### Docker compose on MAC
-You must allow "File Sharing" on `migration` directory. Alternativly use following docker-compose file:
-```sh
-version: '3.8'
-
-services:
-  app:
-    build:
-      dockerfile: docker/Dockerfile
-      context: ../
-    ports:
-      - "8080:8080"
-    restart: unless-stopped
-    depends_on: 
-      db:
-        condition: service_healthy
-    environment:
-      DATABASE_URL: ${DATABASE_URL}
-  db:
-    image: mysql:8.1.0
-    restart: always
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      timeout: 20s
-      retries: 10
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-    ports:
-      - '3366:3306'
-    volumes:
-      - ../migrations/000001_init_schema.up.sql:/docker-entrypoint-initdb.d/000001_init_schema.up.sql
 ```
 
 ## Database migration
