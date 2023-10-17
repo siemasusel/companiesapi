@@ -46,13 +46,11 @@ paths:
       operationId: GetCompany
       responses:
         "200":
-          description: List credit cards
+          description: ReadCompany
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Company"
+                $ref: "#/components/schemas/Company"
         default:
           description: Unexpected error
           content:
